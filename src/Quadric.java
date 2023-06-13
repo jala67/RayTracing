@@ -119,12 +119,12 @@ public class Quadric implements CSGObject {
         float kd = (1-ks)*(1-material.metalness);
 
         // gamma-correction
-        float rot = (float) Math.pow(material.getColor().getX(),2.2f);
-        float grün = (float) Math.pow(material.getColor().getY(),2.2f);
-        float blau = (float) Math.pow(material.getColor().getZ(),2.2f);
-        material.color.setX(rot);
-        material.color.setY(grün);
-        material.color.setZ(blau);
+        float red = (float) Math.pow(material.getColor().getX(),2.2f);
+        float green = (float) Math.pow(material.getColor().getY(),2.2f);
+        float blue = (float) Math.pow(material.getColor().getZ(),2.2f);
+        material.color.setX(red);
+        material.color.setY(green);
+        material.color.setZ(blue);
 
         // specular color (Cook Torrance)
         Vector lightColor = new Vector(1f,1f,1f);
@@ -136,17 +136,16 @@ public class Quadric implements CSGObject {
         specularColor.setZ(specularColor.getZ()*multiplicateVec.getZ());
 
         // gamma-correction
-        rot = (float) Math.pow(material.getColor().getX(),(1/2.2f));
-        grün = (float) Math.pow(material.getColor().getY(),(1/2.2f));
-        blau = (float) Math.pow(material.getColor().getZ(),(1/2.2f));
-        material.color.setX(rot);
-        material.color.setY(grün);
-        material.color.setZ(blau);
+        red = (float) Math.pow(material.getColor().getX(),(1/2.2f));
+        green = (float) Math.pow(material.getColor().getY(),(1/2.2f));
+        blue = (float) Math.pow(material.getColor().getZ(),(1/2.2f));
+        material.color.setX(red);
+        material.color.setY(green);
+        material.color.setZ(blue);
 
         specularColor.clamp(0, 1);
         // final color
-        Vector finalColor = specularColor;
-        return finalColor.multiply(255);
+        return specularColor.multiply(255);
     }
 
     private float calculateMicrofacetDistribution(float NdotH, float roughnessSquared) {
