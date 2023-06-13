@@ -44,7 +44,7 @@ public class RayTracer {
         sphereQuadric3 = sphereQuadric3.translate(new Vector(-2,-1,-6.2f));
         sphereQuadric4 = sphereQuadric4.translate(new Vector(-3,-1,-6));
         sphereQuadric5 = sphereQuadric5.translate(new Vector(-3,2,-6));
-        sphereQuadric6 = sphereQuadric6.translate(new Vector(-4,2,-4.5f));
+        sphereQuadric6 = sphereQuadric6.translate(new Vector(-3.5f,2,-4));
         quadric2 = quadric2.translate(new Vector(1, 0, -8f));
 
         //CSG operations

@@ -219,10 +219,16 @@ public class Quadric implements CSGObject {
             if (t1 > 0 && t2 > 0) {
                 if (t1 < t2) {
                     Vector intersectionPoint = ray.getOrigin().add(ray.getDirection().normalize().multiply(t1));
-                    return new Intersection(intersectionPoint, t1, quadric);
+                    Intersection intersection = new Intersection(intersectionPoint, t1, quadric);
+                    intersection.entryIntersection = t1;
+                    intersection.exitIntersection = t2;
+                    return intersection;
                 } else {
                     Vector intersectionPoint = ray.getOrigin().add(ray.getDirection().normalize().multiply(t2));
-                    return new Intersection(intersectionPoint, t2, quadric);
+                    Intersection intersection = new Intersection(intersectionPoint, t2, quadric);
+                    intersection.entryIntersection = t2;
+                    intersection.exitIntersection = t1;
+                    return intersection;
                 }
             } else if (t1 > 0) {
                 Vector intersectionPoint = ray.getOrigin().add(ray.getDirection().normalize().multiply(t1));

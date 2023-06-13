@@ -1,4 +1,6 @@
 public class Intersection {
+    float entryIntersection;
+    float exitIntersection;
     Vector intersectionPoint;
     float intersection;
     Quadric quadric;
