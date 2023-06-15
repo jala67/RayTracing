@@ -29,15 +29,15 @@ public class RayTracer {
         RayTracer rayTracer = new RayTracer();
 
         // create quadrics
-        Quadric cone = new Quadric(1, -1, 1, 0, 0, 0, 0, 0, 0, 0, new Material(new Vector(0.8f, 0.5f, 0.1f), 0.1f, 0f));
-        Quadric quadric2 = new Quadric(1f, -1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.4f, 0.8f, 0.3f), 0.1f, 0f));
-        Quadric sphereQuadricShadow = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.6f, 0.5f), 0.1f, 0f));
-        Quadric sphereQuadric = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.1f, 0f));
-        Quadric sphereQuadric2 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0f, 0f, 1f), 0.1f, 0f));
-        Quadric sphereQuadric3 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.8f, 0f));
-        Quadric sphereQuadric4 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.2f, 0.1f, 0.8f), 0.8f, 0f));
-        Quadric sphereQuadric5 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.1f, 0f));
-        Quadric sphereQuadric6 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.2f, 0.1f, 0.8f), 0.1f, 0f));
+        Quadric cone = new Quadric(1, -1, 1, 0, 0, 0, 0, 0, 0, 0, new Material(new Vector(0.8f, 0.5f, 0.1f), 0.1f, 0f, 1f));
+        Quadric quadric2 = new Quadric(1f, -1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.4f, 0.8f, 0.3f), 0.1f, 0f, 1f));
+        Quadric sphereQuadricShadow = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.6f, 0.5f), 0.1f, 0f, 1f));
+        Quadric sphereQuadric = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.1f, 0f, 1f));
+        Quadric sphereQuadric2 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0f, 0f, 1f), 0.1f, 0f, 0.5f));
+        Quadric sphereQuadric3 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.8f, 0f, 1f));
+        Quadric sphereQuadric4 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.2f, 0.1f, 0.8f), 0.8f, 0f, 0.8f));
+        Quadric sphereQuadric5 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.1f, 0f, 0.2f));
+        Quadric sphereQuadric6 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.2f, 0.1f, 0.8f), 0.1f, 0f, 0.1f));
 
         //transform quadrics
         sphereQuadric = sphereQuadric.translate(new Vector(3,0,-5)).scale(new Vector(1,1,1));
@@ -78,7 +78,7 @@ public class RayTracer {
                     if (i.intersection > 0 && i.intersection < closestIntersection.intersection) {
                         closestIntersection = i;
                        // Vector intersectionVector = ray.getOrigin().add(ray.getDirection().normalize().multiply(closestIntersection)); // pos geaddet um kamera zu bewegen
-                        color = object.getColor(closestIntersection, light1, object.getMaterial(closestIntersection), ray.getOrigin(), rayTracer.objects); // änderung
+                        color = object.getColor(closestIntersection, light1, object.getMaterial(closestIntersection), ray, rayTracer.objects, 4); // änderung
                     }
                 }
                 // Set pixel color
