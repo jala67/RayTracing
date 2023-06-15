@@ -1,3 +1,4 @@
+import java.util.List;
 
 public class CSG implements CSGObject {
     Quadric quadric1;
@@ -63,7 +64,7 @@ public class CSG implements CSGObject {
                     } else {
                         if (Ain < Bout && Bout < Aout) {
                             Vector intersectionPoint = ray.getOrigin().add(ray.getDirection().normalize().multiply(Bout));
-                            return new Intersection(intersectionPoint, Bout, quadric2); // needs normal from quadric2
+                            return new Intersection(intersectionPoint, Bout, quadric2); // needs normal from quadric2, ausgeschnittene Wölbung
                         } else if (Bout < Ain) {
                             Vector intersectionPoint = ray.getOrigin().add(ray.getDirection().normalize().multiply(Ain));
                             return new Intersection(intersectionPoint, Ain, quadric1);
@@ -83,8 +84,8 @@ public class CSG implements CSGObject {
     }
 
     @Override
-    public Vector getColor(Intersection intersection, Light light, Material material, Vector rayOrigin) {
-        return intersection.quadric.getColor(intersection, light, intersection.quadric.material, rayOrigin);
+    public Vector getColor(Intersection intersection, Light light, Material material, Vector rayOrigin, List<CSGObject> objects) {
+        return intersection.quadric.getColor(intersection, light, intersection.quadric.material, rayOrigin, objects);
     }
 
     @Override

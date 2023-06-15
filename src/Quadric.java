@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class Quadric implements CSGObject {
     float a, b, c, d, e, f, g, h, i, j;
     Material material;
@@ -94,10 +96,24 @@ public class Quadric implements CSGObject {
         return normal;
     }
 //platzierung
-    public Vector getColor(Intersection intersection, Light light, Material material, Vector rayOrigin) {
+    public Vector getColor(Intersection intersection, Light light, Material material, Vector rayOrigin, List<CSGObject> objects) {
         Vector normal = getNormal(intersection.intersectionPoint);
         Vector intersectionToLight = light.getPosition().subtract(intersection.intersectionPoint);
        // float distance = intersectionToLight.length();
+
+        // Check for shadows
+        boolean isInShadow = false;
+        Ray shadowRay = new Ray(intersection.intersectionPoint, intersectionToLight);
+        for (CSGObject object : objects) {
+            Intersection shadowIntersection = object.intersect(shadowRay, null);
+            if (shadowIntersection.intersection > 0 && shadowIntersection.intersection < intersectionToLight.length()) {
+                isInShadow = true;
+                break;
+            }
+        }
+
+        // Calculate shadow factor
+        float shadowFactor = isInShadow ? 0.3f : 1.0f; // Adjust the shadow darkness here (e.g., 0.5f for 50% darkness)
 
         Vector viewDirection = rayOrigin.subtract(intersection.intersectionPoint).normalize();
         Vector lightDirection = intersectionToLight.normalize();
@@ -145,7 +161,8 @@ public class Quadric implements CSGObject {
 
         specularColor.clamp(0, 1);
         // final color
-        return specularColor.multiply(255);
+        Vector finalColor = specularColor.multiply(255);
+        return finalColor.multiply(shadowFactor);
     }
 
     private float calculateMicrofacetDistribution(float NdotH, float roughnessSquared) {

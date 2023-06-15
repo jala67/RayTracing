@@ -22,7 +22,7 @@ public class RayTracer {
     public void addLight(Light light) {
         lights.add(light);
     }
-    public void addObject(CSGObject object){objects.add(object);}
+    public void addObject(CSGObject object) {objects.add(object);}
 
     public static void main(String[] args) {
 
@@ -31,6 +31,7 @@ public class RayTracer {
         // create quadrics
         Quadric cone = new Quadric(1, -1, 1, 0, 0, 0, 0, 0, 0, 0, new Material(new Vector(0.8f, 0.5f, 0.1f), 0.1f, 0f));
         Quadric quadric2 = new Quadric(1f, -1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.4f, 0.8f, 0.3f), 0.1f, 0f));
+        Quadric sphereQuadricShadow = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.6f, 0.5f), 0.1f, 0f));
         Quadric sphereQuadric = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.1f, 0f));
         Quadric sphereQuadric2 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0f, 0f, 1f), 0.1f, 0f));
         Quadric sphereQuadric3 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.8f, 0f));
@@ -46,6 +47,7 @@ public class RayTracer {
         sphereQuadric5 = sphereQuadric5.translate(new Vector(-3,2,-6));
         sphereQuadric6 = sphereQuadric6.translate(new Vector(-3.5f,2,-4));
         quadric2 = quadric2.translate(new Vector(1, 0, -8f));
+        sphereQuadricShadow = sphereQuadricShadow.translate(new Vector(2.5f, 1.5f, -1));
 
         //CSG operations
         CSG csgUnion = new CSG(sphereQuadric3, sphereQuadric4, "union");
@@ -54,6 +56,7 @@ public class RayTracer {
 
         // add objects
         rayTracer.addObject(quadric2);
+        rayTracer.addObject(sphereQuadricShadow);
         rayTracer.addObject(csgDifference);
         rayTracer.addObject(csgIntersection);
         rayTracer.addObject(csgUnion);
@@ -75,10 +78,9 @@ public class RayTracer {
                     if (i.intersection > 0 && i.intersection < closestIntersection.intersection) {
                         closestIntersection = i;
                        // Vector intersectionVector = ray.getOrigin().add(ray.getDirection().normalize().multiply(closestIntersection)); // pos geaddet um kamera zu bewegen
-                        color = object.getColor(closestIntersection, light1, object.getMaterial(closestIntersection), ray.getOrigin()); // änderung
+                        color = object.getColor(closestIntersection, light1, object.getMaterial(closestIntersection), ray.getOrigin(), rayTracer.objects); // änderung
                     }
                 }
-
                 // Set pixel color
                 int r = (int) color.getX();
                 int g = (int) color.getY();
@@ -87,7 +89,6 @@ public class RayTracer {
                 pixels[y * camera.imageWidth + x] = (255 << 24) | (r << 16) | (g << 8) | b;
             }
         }
-
         MemoryImageSource mis = new MemoryImageSource(camera.imageWidth, camera.imageHeight, new DirectColorModel(24, 0xff0000, 0xff00, 0xff), pixels, 0, camera.imageWidth);
         Image image = Toolkit.getDefaultToolkit().createImage(mis);
 
