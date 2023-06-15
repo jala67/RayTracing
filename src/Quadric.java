@@ -96,7 +96,7 @@ public class Quadric implements CSGObject {
         return normal;
     }
 //platzierung
-    public Vector getColor(Intersection intersection, Light light, Material material, Vector rayOrigin, List<CSGObject> objects) {
+    public Vector getColor(Intersection intersection, Light light, Material material, Ray ray, List<CSGObject> objects, int maxDepth) {
         Vector normal = getNormal(intersection.intersectionPoint);
         Vector intersectionToLight = light.getPosition().subtract(intersection.intersectionPoint);
        // float distance = intersectionToLight.length();
@@ -115,7 +115,22 @@ public class Quadric implements CSGObject {
         // Calculate shadow factor
         float shadowFactor = isInShadow ? 0.3f : 1.0f; // Adjust the shadow darkness here (e.g., 0.5f for 50% darkness)
 
-        Vector viewDirection = rayOrigin.subtract(intersection.intersectionPoint).normalize();
+        // Calculate reflection color
+        Vector reflectionColor = new Vector(0, 0, 0);
+        if (maxDepth > 0) {
+            float dotProduct = normal.dotProduct(ray.getDirection());
+            Vector reflectedDirection = ray.getDirection().subtract(normal.multiply(dotProduct)); //.subtract(intersection.intersectionPoint).reflect(normal).normalize();
+            Ray reflectedRay = new Ray(intersection.intersectionPoint, reflectedDirection);
+            for (CSGObject object : objects) {
+                Intersection reflectedIntersection = intersect(reflectedRay, object);
+                if (reflectedIntersection.quadric != null) {
+                    Vector reflectedColor = getColor(reflectedIntersection, light, material, ray, objects, maxDepth - 1);
+                    reflectionColor = reflectedColor.multiply(material.getShinyness());
+                }
+            }
+        }
+
+        Vector viewDirection = ray.getOrigin().subtract(intersection.intersectionPoint).normalize();
         Vector lightDirection = intersectionToLight.normalize();
         Vector halfway = viewDirection.add(lightDirection).normalize();
 
@@ -129,7 +144,7 @@ public class Quadric implements CSGObject {
         float D = calculateMicrofacetDistribution(NdotH, roughnessSquared);
         float G = calculateGeometricTerm(NdotV, NdotL, material.roughness);
         float F = calculateFresnelTerm(F0, NdotV);
-        System.out.println("Fresnel: " + F + "\tNormal: " + D + "\tGeometry: " + G);
+        // System.out.println("Fresnel: " + F + "\tNormal: " + D + "\tGeometry: " + G);
 
         float ks = D*F*G;
         float kd = (1-ks)*(1-material.metalness);
@@ -162,7 +177,7 @@ public class Quadric implements CSGObject {
         specularColor.clamp(0, 1);
         // final color
         Vector finalColor = specularColor.multiply(255);
-        return finalColor.multiply(shadowFactor);
+        return finalColor.multiply(shadowFactor).add(reflectionColor);
     }
 
     private float calculateMicrofacetDistribution(float NdotH, float roughnessSquared) {
@@ -177,7 +192,7 @@ public class Quadric implements CSGObject {
         return  F0 + (1 - F0) * (float) Math.pow(1 - NdotV, 5);
     }
 
-    public Intersection intersect(Ray ray, Quadric quadric) {
+    public Intersection intersect(Ray ray, CSGObject quadric) {
         Vector origin = ray.getOrigin();
 
         float a = this.a;

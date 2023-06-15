@@ -11,7 +11,7 @@ public class CSG implements CSGObject {
         this.operation = operation;
     }
 
-    public Intersection intersect(Ray ray, Quadric quadric) { // bad, quadric is never used (override)
+    public Intersection intersect(Ray ray, CSGObject object) { // bad, quadric is never used (override)
 
         switch (operation) {
             case "union" -> {
@@ -84,8 +84,8 @@ public class CSG implements CSGObject {
     }
 
     @Override
-    public Vector getColor(Intersection intersection, Light light, Material material, Vector rayOrigin, List<CSGObject> objects) {
-        return intersection.quadric.getColor(intersection, light, intersection.quadric.material, rayOrigin, objects);
+    public Vector getColor(Intersection intersection, Light light, Material material, Ray ray, List<CSGObject> objects, int maxDepth) {
+        return intersection.quadric.getColor(intersection, light, intersection.quadric.material, ray, objects, maxDepth);
     }
 
     @Override
