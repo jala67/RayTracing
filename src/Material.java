@@ -3,14 +3,18 @@ public class Material {
     float roughness;
     float metalness;
     float shinyness; // = 1f - roughness
-    float tranparency;
+    float transmission;
+    float transparency;
+    int counter = 1;
 
 
-    public Material(Vector color, float roughness, float metalness, float shinyness) {
+    public Material(Vector color, float roughness, float metalness, float shinyness, float transmission, float transparency) {
         this.color = color;
         this.roughness = roughness;
         this.metalness = metalness;
         this.shinyness = shinyness;
+        this.transmission = transmission;
+        this.transparency = transparency;
     }
 
     public Vector getColor() { return this.color; }
