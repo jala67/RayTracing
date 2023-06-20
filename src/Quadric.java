@@ -95,7 +95,7 @@ public class Quadric implements CSGObject {
 
         return normal;
     }
-//platzierung
+
     public Vector getColor(Intersection intersection, Light light, Material material, Ray ray, List<CSGObject> objects, int maxDepth) {
         Vector normal = getNormal(intersection.intersectionPoint);
         Vector intersectionToLight = light.getPosition().subtract(intersection.intersectionPoint);
@@ -118,9 +118,10 @@ public class Quadric implements CSGObject {
         // Calculate reflection color
         Vector reflectionColor = new Vector(0, 0, 0);
         if (maxDepth > 0) {
-            float dotProduct = normal.dotProduct(ray.getDirection());
-            Vector reflectedDirection = ray.getDirection().subtract(normal.multiply(dotProduct*2)); //.subtract(intersection.intersectionPoint).reflect(normal).normalize();
-            Ray reflectedRay = new Ray(intersection.intersectionPoint, reflectedDirection);
+            float dotProduct = ray.getDirection().dotProduct(normal);
+            Vector reflectedDirection = ray.getDirection().subtract(normal.multiply(2*dotProduct));
+            Vector reflectionRayOrigin = intersection.intersectionPoint.add(reflectedDirection.multiply(0.001f)); // add small value to avoid hitting the same object
+            Ray reflectedRay = new Ray(reflectionRayOrigin, reflectedDirection);
             for (CSGObject object : objects) {
                 Intersection reflectedIntersection = intersect(reflectedRay, object);
                 if (reflectedIntersection.quadric != null) {
