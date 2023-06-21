@@ -95,7 +95,7 @@ public class Quadric implements CSGObject {
 
         return normal;
     }
-//platzierung
+
     public Vector getColor(Intersection intersection, Light light, Material material, Ray ray, List<CSGObject> objects, int maxDepth) {
         Vector normal = getNormal(intersection.intersectionPoint);
         Vector intersectionToLight = light.getPosition().subtract(intersection.intersectionPoint);
@@ -118,9 +118,10 @@ public class Quadric implements CSGObject {
         // Calculate reflection color
         Vector reflectionColor = new Vector(0, 0, 0);
         if (maxDepth > 0) {
-            float dotProduct = normal.dotProduct(ray.getDirection());
-            Vector reflectedDirection = ray.getDirection().subtract(normal.multiply(dotProduct)); //.subtract(intersection.intersectionPoint).reflect(normal).normalize();
-            Ray reflectedRay = new Ray(intersection.intersectionPoint, reflectedDirection);
+            float dotProduct = ray.getDirection().dotProduct(normal);
+            Vector reflectedDirection = ray.getDirection().subtract(normal.multiply(2*dotProduct));
+            Vector reflectionRayOrigin = intersection.intersectionPoint.add(reflectedDirection.multiply(0.001f)); // add small value to avoid hitting the same object
+            Ray reflectedRay = new Ray(reflectionRayOrigin, reflectedDirection);
             for (CSGObject object : objects) {
                 Intersection reflectedIntersection = intersect(reflectedRay, object);
                 if (reflectedIntersection.quadric != null) {
@@ -128,6 +129,15 @@ public class Quadric implements CSGObject {
                     reflectionColor = reflectedColor.multiply(material.getShinyness());
                 }
             }
+        }
+
+        // Calculate refraction color
+        Vector refractedColor = new Vector(0, 0, 0);
+        if (material.counter == 1 && material.transparency > 0) {
+            Vector refractedDirection = calculateRefractionDirection(ray.getDirection(), normal, material.transmission);
+            Ray refractedRay = new Ray(intersection.intersectionPoint, refractedDirection);
+            material.counter = 0;
+            refractedColor = getColor(intersection, light, material, refractedRay, objects, maxDepth - 1);
         }
 
         Vector viewDirection = ray.getOrigin().subtract(intersection.intersectionPoint).normalize();
@@ -176,8 +186,8 @@ public class Quadric implements CSGObject {
 
         specularColor.clamp(0, 1);
         // final color
-        Vector finalColor = specularColor.multiply(255);
-        return finalColor.multiply(shadowFactor).add(reflectionColor);
+        Vector finalColor = specularColor;
+        return finalColor.add(reflectionColor).add(refractedColor.multiply(material.transparency)).multiply(shadowFactor);
     }
 
     private float calculateMicrofacetDistribution(float NdotH, float roughnessSquared) {
@@ -190,6 +200,33 @@ public class Quadric implements CSGObject {
 
     private float calculateFresnelTerm(float F0, float NdotV) {
         return  F0 + (1 - F0) * (float) Math.pow(1 - NdotV, 5);
+    }
+
+    private Vector calculateRefractionDirection(Vector incidentDirection, Vector surfaceNormal, float refractionIndex) {
+        float cosThetaI = -surfaceNormal.dotProduct(incidentDirection);
+        float etaI = 1.0f; // Brechungsindex des Mediums, aus dem der Strahl eintritt (normalerweise 1 für Vakuum oder Luft)
+        float etaT = refractionIndex; // Brechungsindex des Mediums, in das der Strahl eintritt
+
+        if (cosThetaI < 0) {
+            // Der Strahl trifft auf die Oberfläche von innen
+            cosThetaI = -cosThetaI;
+            float temp = etaI;
+            etaI = etaT;
+            etaT = temp;
+            surfaceNormal = surfaceNormal.negate();
+        }
+
+        float etaRatio = etaI / etaT;
+        float k = 1 - etaRatio * etaRatio * (1 - cosThetaI * cosThetaI);
+
+        if (k < 0) {
+            // Totalreflexion, kein gebrochener Strahl
+            return new Vector(0, 0, 0);
+        } else {
+            // Berechne die Richtung des gebrochenen Strahls
+            Vector refractedDirection = incidentDirection.multiply(etaRatio).add(surfaceNormal.multiply(etaRatio * cosThetaI - (float) Math.sqrt(k)));
+            return refractedDirection.normalize();
+        }
     }
 
     public Intersection intersect(Ray ray, CSGObject quadric) {
