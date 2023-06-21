@@ -11,12 +11,31 @@ public class CSG implements CSGObject {
         this.operation = operation;
     }
 
-    public Intersection intersect(Ray ray, CSGObject object) { // bad, quadric is never used (override)
+    public Vector getNormal (Intersection intersection){
+
+        switch (operation) {
+            case "union", "intersection" -> {
+                if (quadric1 == intersection.quadric){
+                   return quadric1.getNormal(intersection);
+                } else
+                    return quadric2.getNormal(intersection);
+            }
+            case "difference" -> {
+                if (quadric1 == intersection.quadric){
+                    return quadric1.getNormal(intersection);
+                } else
+                    return quadric2.getNormal(intersection).multiply(-1);
+            }
+        }
+        return new Vector(0,0,0);
+    }
+
+    public Intersection intersect(Ray ray) { // bad, quadric is never used (override)
 
         switch (operation) {
             case "union" -> {
-                Intersection intersection1 = quadric1.intersect(ray, quadric1);
-                Intersection intersection2 = quadric2.intersect(ray, quadric2);
+                Intersection intersection1 = quadric1.intersect(ray);
+                Intersection intersection2 = quadric2.intersect(ray);
 
                 if (intersection1.intersection > 0 && intersection2.intersection > 0) {
                     if (intersection1.intersection < intersection2.intersection) {
@@ -37,8 +56,8 @@ public class CSG implements CSGObject {
                 return new Intersection(null, -1.0f, null);
             }
             case "intersection" -> {
-                float intersection1 = quadric1.intersect(ray, quadric1).intersection;
-                float intersection2 = quadric2.intersect(ray, quadric2).intersection;
+                float intersection1 = quadric1.intersect(ray).intersection;
+                float intersection2 = quadric2.intersect(ray).intersection;
 
                 if (intersection1 > 0 && intersection2 > 0) {
                     if (intersection1 < intersection2) {
@@ -52,10 +71,10 @@ public class CSG implements CSGObject {
                 }
             }
             case "difference" -> {
-                float Ain = quadric1.intersect(ray, quadric1).entryIntersection;
-                float Aout = quadric1.intersect(ray, quadric1).exitIntersection;
-                float Bin = quadric2.intersect(ray, quadric2).entryIntersection;
-                float Bout = quadric2.intersect(ray, quadric2).exitIntersection;
+                float Ain = quadric1.intersect(ray).entryIntersection;
+                float Aout = quadric1.intersect(ray).exitIntersection;
+                float Bin = quadric2.intersect(ray).entryIntersection;
+                float Bout = quadric2.intersect(ray).exitIntersection;
 
                 if (Ain > 0 && Bin > 0) {
                     if (Ain < Bin) {
@@ -82,12 +101,6 @@ public class CSG implements CSGObject {
         }
         return new Intersection(null, -1.0f, null);
     }
-
-    @Override
-    public Vector getColor(Intersection intersection, Light light, Material material, Ray ray, List<CSGObject> objects, int maxDepth) {
-        return intersection.quadric.getColor(intersection, light, intersection.quadric.material, ray, objects, maxDepth);
-    }
-
     @Override
     public Material getMaterial(Intersection intersection) {
         return intersection.quadric.getMaterial(intersection);
