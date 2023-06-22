@@ -81,7 +81,9 @@ public class Quadric implements CSGObject {
         return this.material;
     }
 
-    public Vector getNormal(Vector point) {
+    public Vector getNormal(Intersection intersection) {
+
+        Vector point = intersection.intersectionPoint;
         float x = point.getX();
         float y = point.getY();
         float z = point.getZ();
@@ -96,140 +98,7 @@ public class Quadric implements CSGObject {
         return normal;
     }
 
-    public Vector getColor(Intersection intersection, Light light, Material material, Ray ray, List<CSGObject> objects, int maxDepth) {
-        Vector normal = getNormal(intersection.intersectionPoint);
-        Vector intersectionToLight = light.getPosition().subtract(intersection.intersectionPoint);
-       // float distance = intersectionToLight.length();
-
-        // Check for shadows
-        boolean isInShadow = false;
-        Ray shadowRay = new Ray(intersection.intersectionPoint, intersectionToLight);
-        for (CSGObject object : objects) {
-            Intersection shadowIntersection = object.intersect(shadowRay, null);
-            if (shadowIntersection.intersection > 0 && shadowIntersection.intersection < intersectionToLight.length()) {
-                isInShadow = true;
-                break;
-            }
-        }
-
-        // Calculate shadow factor
-        float shadowFactor = isInShadow ? 0.3f : 1.0f; // Adjust the shadow darkness here (e.g., 0.5f for 50% darkness)
-
-        // Calculate reflection color
-        Vector reflectionColor = new Vector(0, 0, 0);
-        if (maxDepth > 0) {
-            float dotProduct = ray.getDirection().dotProduct(normal);
-            Vector reflectedDirection = ray.getDirection().subtract(normal.multiply(2*dotProduct));
-            Vector reflectionRayOrigin = intersection.intersectionPoint.add(reflectedDirection.multiply(0.001f)); // add small value to avoid hitting the same object
-            Ray reflectedRay = new Ray(reflectionRayOrigin, reflectedDirection);
-            for (CSGObject object : objects) {
-                Intersection reflectedIntersection = intersect(reflectedRay, object);
-                if (reflectedIntersection.quadric != null) {
-                    Vector reflectedColor = getColor(reflectedIntersection, light, material, ray, objects, maxDepth - 1);
-                    reflectionColor = reflectedColor.multiply(material.getShinyness());
-                }
-            }
-        }
-
-        // Calculate refraction color
-        Vector refractedColor = new Vector(0, 0, 0);
-        if (material.counter == 1 && material.transparency > 0) {
-            Vector refractedDirection = calculateRefractionDirection(ray.getDirection(), normal, material.transmission);
-            Ray refractedRay = new Ray(intersection.intersectionPoint, refractedDirection);
-            material.counter = 0;
-            refractedColor = getColor(intersection, light, material, refractedRay, objects, maxDepth - 1);
-        }
-
-        Vector viewDirection = ray.getOrigin().subtract(intersection.intersectionPoint).normalize();
-        Vector lightDirection = intersectionToLight.normalize();
-        Vector halfway = viewDirection.add(lightDirection).normalize();
-
-        float F0 = 0.04f;
-        float NdotL = normal.dotProduct(lightDirection);
-        float NdotV = normal.dotProduct(viewDirection);
-        float NdotH = normal.dotProduct(halfway);
-        float roughnessSquared = material.getRoughness() * material.getRoughness();
-
-        // Cook-Torrance terms
-        float D = calculateMicrofacetDistribution(NdotH, roughnessSquared);
-        float G = calculateGeometricTerm(NdotV, NdotL, material.roughness);
-        float F = calculateFresnelTerm(F0, NdotV);
-        // System.out.println("Fresnel: " + F + "\tNormal: " + D + "\tGeometry: " + G);
-
-        float ks = D*F*G;
-        float kd = (1-ks)*(1-material.metalness);
-
-        // gamma-correction
-        float red = (float) Math.pow(material.getColor().getX(),2.2f);
-        float green = (float) Math.pow(material.getColor().getY(),2.2f);
-        float blue = (float) Math.pow(material.getColor().getZ(),2.2f);
-        material.color.setX(red);
-        material.color.setY(green);
-        material.color.setZ(blue);
-
-        // specular color (Cook Torrance)
-        Vector lightColor = new Vector(1f,1f,1f);
-        Vector multiplicateVec = material.getColor().multiply(kd).add(new Vector(ks,ks,ks));
-        Vector specularColor = lightColor.multiply(NdotL* light.getIntensity());
-
-        specularColor.setX(specularColor.getX()*multiplicateVec.getX());
-        specularColor.setY(specularColor.getY()*multiplicateVec.getY());
-        specularColor.setZ(specularColor.getZ()*multiplicateVec.getZ());
-
-        // gamma-correction
-        red = (float) Math.pow(material.getColor().getX(),(1/2.2f));
-        green = (float) Math.pow(material.getColor().getY(),(1/2.2f));
-        blue = (float) Math.pow(material.getColor().getZ(),(1/2.2f));
-        material.color.setX(red);
-        material.color.setY(green);
-        material.color.setZ(blue);
-
-        specularColor.clamp(0, 1);
-        // final color
-        Vector finalColor = specularColor;
-        return finalColor.add(reflectionColor).add(refractedColor.multiply(material.transparency)).multiply(shadowFactor);
-    }
-
-    private float calculateMicrofacetDistribution(float NdotH, float roughnessSquared) {
-        return (float) (roughnessSquared/(Math.PI*Math.pow(NdotH*NdotH*(roughnessSquared-1)+1, 2)));
-    }
-
-    private float calculateGeometricTerm(float NdotV, float NdotL, float roughness) {
-        return NdotV / (NdotV * (1 - roughness / 2) + roughness / 2) * NdotL / (NdotL * (1 - roughness / 2) + roughness / 2);
-    }
-
-    private float calculateFresnelTerm(float F0, float NdotV) {
-        return  F0 + (1 - F0) * (float) Math.pow(1 - NdotV, 5);
-    }
-
-    private Vector calculateRefractionDirection(Vector incidentDirection, Vector surfaceNormal, float refractionIndex) {
-        float cosThetaI = -surfaceNormal.dotProduct(incidentDirection);
-        float etaI = 1.0f; // Brechungsindex des Mediums, aus dem der Strahl eintritt (normalerweise 1 für Vakuum oder Luft)
-        float etaT = refractionIndex; // Brechungsindex des Mediums, in das der Strahl eintritt
-
-        if (cosThetaI < 0) {
-            // Der Strahl trifft auf die Oberfläche von innen
-            cosThetaI = -cosThetaI;
-            float temp = etaI;
-            etaI = etaT;
-            etaT = temp;
-            surfaceNormal = surfaceNormal.negate();
-        }
-
-        float etaRatio = etaI / etaT;
-        float k = 1 - etaRatio * etaRatio * (1 - cosThetaI * cosThetaI);
-
-        if (k < 0) {
-            // Totalreflexion, kein gebrochener Strahl
-            return new Vector(0, 0, 0);
-        } else {
-            // Berechne die Richtung des gebrochenen Strahls
-            Vector refractedDirection = incidentDirection.multiply(etaRatio).add(surfaceNormal.multiply(etaRatio * cosThetaI - (float) Math.sqrt(k)));
-            return refractedDirection.normalize();
-        }
-    }
-
-    public Intersection intersect(Ray ray, CSGObject quadric) {
+    public Intersection intersect(Ray ray) {
         Vector origin = ray.getOrigin();
 
         float a = this.a;
@@ -287,23 +156,23 @@ public class Quadric implements CSGObject {
             if (t1 > 0 && t2 > 0) {
                 if (t1 < t2) {
                     Vector intersectionPoint = ray.getOrigin().add(ray.getDirection().normalize().multiply(t1));
-                    Intersection intersection = new Intersection(intersectionPoint, t1, quadric);
+                    Intersection intersection = new Intersection(intersectionPoint, t1, this);
                     intersection.entryIntersection = t1;
                     intersection.exitIntersection = t2;
                     return intersection;
                 } else {
                     Vector intersectionPoint = ray.getOrigin().add(ray.getDirection().normalize().multiply(t2));
-                    Intersection intersection = new Intersection(intersectionPoint, t2, quadric);
+                    Intersection intersection = new Intersection(intersectionPoint, t2, this);
                     intersection.entryIntersection = t2;
                     intersection.exitIntersection = t1;
                     return intersection;
                 }
             } else if (t1 > 0) {
                 Vector intersectionPoint = ray.getOrigin().add(ray.getDirection().normalize().multiply(t1));
-                return new Intersection(intersectionPoint, t1, quadric);
+                return new Intersection(intersectionPoint, t1, this);
             } else if (t2 > 0) {
                 Vector intersectionPoint = ray.getOrigin().add(ray.getDirection().normalize().multiply(t2));
-                return new Intersection(intersectionPoint, t2, quadric);
+                return new Intersection(intersectionPoint, t2, this);
             } else {
                 // no positive intersection point
                 return new Intersection(new Vector(0, 0, 0), -1.0f, null);

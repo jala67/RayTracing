@@ -5,7 +5,7 @@ public class Material {
     float shinyness; // = 1f - roughness
     float transmission;
     float transparency;
-    int counter = 1;
+
 
 
     public Material(Vector color, float roughness, float metalness, float shinyness, float transmission, float transparency) {
@@ -20,6 +20,9 @@ public class Material {
     public Vector getColor() { return this.color; }
     public float getRoughness() { return this.roughness; }
     public float getMetalness() { return this.metalness; }
+
+    public float getTransparency(){ return this.transparency;}
+    public float getTransmission(){ return this.transmission;}
     public float getShinyness() {
         return shinyness;
     }
