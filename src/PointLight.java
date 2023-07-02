@@ -1,10 +1,8 @@
-import java.awt.*;
-
-public class Light {
+public class PointLight {
     Vector position;
     float intensity;
 
-    public Light(Vector position, float intensity) {
+    public PointLight(Vector position, float intensity) {
         this.position = position;
         this.intensity = intensity;
     }

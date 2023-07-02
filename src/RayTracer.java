@@ -66,7 +66,7 @@ public class RayTracer {
         rayTracer.addObject(csgUnion);
         rayTracer.addObject(sphereBackGround);
 
-        Light light1 = new Light(new Vector(2, 2, 5), 1f);
+        Light light1 = new Light(new Vector(3, 2, 5), 1f, 1f);
         rayTracer.addLight(light1);
 
         int[] pixels = new int[camera.imageWidth * camera.imageHeight];
@@ -125,6 +125,7 @@ public class RayTracer {
     }
 
     public Vector getColor(Ray ray, int maxDepth) {
+        int numShadowRays = 20;
         if (maxDepth == 0) {
             return new Vector(0, 0, 0);
         }
@@ -138,7 +139,6 @@ public class RayTracer {
                 idx = i;
                 closestIntersection = intersection;
                 tmp = intersection;
-                // Vector intersectionVector = ray.getOrigin().add(ray.getDirection().normalize().multiply(closestIntersection)); // pos geaddet um kamera zu bewegen
             }
         }
         if (tmp == null) {
@@ -147,22 +147,30 @@ public class RayTracer {
 
         Vector normal = objects.get(idx).getNormal(tmp);
         Vector intersectionToLight = lights.get(0).getPosition().subtract(tmp.intersectionPoint);
-        // float distance = intersectionToLight.length();
 
-        // Check for shadows
-        boolean isInShadow = false;
-        Ray shadowRay = new Ray(tmp.intersectionPoint.add(intersectionToLight.multiply(0.005f)), intersectionToLight);
-        for (CSGObject object : objects) {
-            if (object.getMaterial(tmp).transparency < 0.5f) {
-                Intersection shadowIntersection = object.intersect(shadowRay);
-                if (shadowIntersection.intersection > 0 && shadowIntersection.intersection < intersectionToLight.length()) {
-                    isInShadow = true;
-                    break;
+        // Calculate shadow factor with path tracing
+        float shadowFactor = 0.3f;
+        for (int i = 0; i < numShadowRays; i++) {
+            // Generate a random point within the light cube
+            Vector randomPointOnLight = lights.get(0).getPosition().add(Vector.randomPoint().multiply(lights.get(0).getRadius() * 0.5f));
+            Vector shadowRayDirection = randomPointOnLight.subtract(tmp.intersectionPoint);
+            Ray shadowRay = new Ray(tmp.intersectionPoint.add(shadowRayDirection.multiply(0.001f)), shadowRayDirection);
+
+            // Check for intersection with objects to determine if the point is in shadow
+            boolean isInShadow = false;
+            for (CSGObject object : objects) {
+                if (object.getMaterial(tmp).transparency < 0.5f) {
+                    Intersection shadowIntersection = object.intersect(shadowRay);
+                    if (shadowIntersection.intersection > 0 && shadowIntersection.intersection < shadowRayDirection.length()) {
+                        isInShadow = true;
+                        break;
+                    }
                 }
             }
+            if (!isInShadow) {
+                shadowFactor += 1.0f / numShadowRays;
+            }
         }
-        // Calculate shadow factor
-        float shadowFactor = isInShadow ? 0.3f : 1.0f; // Adjust the shadow darkness here (e.g., 0.5f for 50% darkness)
 
         // Calculate reflection color
         Vector reflectionColor = new Vector(0, 0, 0);
@@ -178,7 +186,7 @@ public class RayTracer {
             Vector refractedDirection = calculateRefractionDirection(ray.getDirection(),normal,tmp.quadric.material.getTransmission());
             Vector refractedRayOrigin = tmp.intersectionPoint.add(refractedDirection.multiply(0.001f));
             Ray refractionRay = new Ray(refractedRayOrigin,refractedDirection);
-            reflectionColor = getColor(refractionRay, maxDepth-1);
+            reflectionColor = getColor(refractionRay, maxDepth - 1);
         }
 
         Vector viewDirection = ray.getOrigin().subtract(tmp.intersectionPoint).normalize();
