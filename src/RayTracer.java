@@ -13,10 +13,13 @@ public class RayTracer {
     static List<CSGObject> objects;
     private static Camera camera;
 
+    private static final int numSamples = 2; // Anzahl der Strahlen pro Pixel
+
+
     public RayTracer() {
         this.lights = new ArrayList<>();
         objects = new ArrayList<>();
-        camera = new Camera(1920, 1080);
+        camera = new Camera(2540, 1440);
     }
 
     public void addLight(Light light) {
@@ -43,8 +46,8 @@ public class RayTracer {
         Quadric sphereQuadric6 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.8f, 0f, 0.2f, 0f, 0f));
 
         //transform quadrics
-        sphereQuadric = sphereQuadric.translate(new Vector(3, 0, -5.5f));
-        sphereQuadric2 = sphereQuadric2.translate(new Vector(2, 0, -5.5f));
+        sphereQuadric = sphereQuadric.translate(new Vector(5, 0, -5.5f));
+        sphereQuadric2 = sphereQuadric2.translate(new Vector(4, 0, -5.5f));
         sphereQuadric3 = sphereQuadric3.translate(new Vector(-2, -1, -6.2f));
         sphereQuadric4 = sphereQuadric4.translate(new Vector(-3, -1, -6));
         sphereQuadric5 = sphereQuadric5.translate(new Vector(-3, 2, -6));
@@ -59,14 +62,14 @@ public class RayTracer {
         CSG csgDifference = new CSG(sphereQuadric5, sphereQuadric6, "difference");
 
         // add objects
-        rayTracer.addObject(csgDifference);
+        //rayTracer.addObject(csgDifference);
         rayTracer.addObject(sphereQuadricShadow);
         rayTracer.addObject(quadric2);
-        rayTracer.addObject(csgIntersection);
+        //rayTracer.addObject(csgIntersection);
         rayTracer.addObject(csgUnion);
         rayTracer.addObject(sphereBackGround);
 
-        Light light1 = new Light(new Vector(3, 2, 5), 1f, 1f);
+        Light light1 = new Light(new Vector(8, 2, 5), 3f, 1f);
         rayTracer.addLight(light1);
 
         int[] pixels = new int[camera.imageWidth * camera.imageHeight];
@@ -74,13 +77,54 @@ public class RayTracer {
         for (int y = 0; y < camera.imageHeight; y++) {
             for (int x = 0; x < camera.imageWidth; x++) {
 
-                Ray ray = camera.getRay(x, y); // änderung
+                Vector color = new Vector(0, 0, 0);
+                Vector firstRayColor = new Vector(0, 0, 0);
+                int numRays = numSamples;
+                boolean similarColors = false;
+
+
+                for (int s = 0; s < numSamples; s++) {
+                    float offsetX = (float) (Math.random() - 0.5f);
+                    float offsetY = (float) (Math.random() - 0.5f);
+                    Ray ray = camera.getRay(x + offsetX, y + offsetY);
+                    Vector rayColor = rayTracer.getColor(ray, 4);
+                    color = color.add(rayColor);
+
+                    if (s == 0) {
+                        firstRayColor = rayColor;
+                    }
+                    similarColors = isSimilar(firstRayColor, rayColor);
+                }
+
+
+                // Additional sampling if colors are not similar
+                if (!similarColors) {
+
+                    numRays += 2;
+
+                     color = new Vector(0, 0, 0);
+
+                    for (int s = 0; s < numRays; s++) {
+                        float offsetX = (float) (Math.random() - 0.5f);
+                        float offsetY = (float) (Math.random() - 0.5f);
+                        Ray ray = camera.getRay(x + offsetX, y + offsetY);
+                        color = color.add(rayTracer.getColor(ray, 4));
+                    }
+                }
+
+                // Calculate average color and convert to pixel color
+                Vector averageColor = color.divide(numRays);
+                int r = (int) (averageColor.getX() * 255);
+                int g = (int) (averageColor.getY() * 255);
+                int b = (int) (averageColor.getZ() * 255);
+
+
+                /*Ray ray = camera.getRay(x, y);
                 Vector color = rayTracer.getColor(ray, 4).multiply(255);
 
-                // Set pixel color
                 int r = (int) color.getX();
                 int g = (int) color.getY();
-                int b = (int) color.getZ();
+                int b = (int) color.getZ();*/
 
                 pixels[y * camera.imageWidth + x] = (255 << 24) | (r << 16) | (g << 8) | b;
             }
@@ -95,6 +139,14 @@ public class RayTracer {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
+    }
+
+    public static boolean isSimilar(Vector vector1, Vector vector2) {
+        float tolerance = 0.001f; // tolerance value
+        float diffX = Math.abs(vector1.x - vector2.x);
+        float diffY = Math.abs(vector1.y - vector2.y);
+        float diffZ = Math.abs(vector1.z - vector2.z);
+        return diffX <= tolerance && diffY <= tolerance && diffZ <= tolerance;
     }
 
     private Vector calculateRefractionDirection(Vector rayDirection, Vector surfaceNormal, float refractionIndex) {
@@ -125,7 +177,7 @@ public class RayTracer {
     }
 
     public Vector getColor(Ray ray, int maxDepth) {
-        int numShadowRays = 20;
+        int numShadowRays = 5;
         if (maxDepth == 0) {
             return new Vector(0, 0, 0);
         }
@@ -142,7 +194,7 @@ public class RayTracer {
             }
         }
         if (tmp == null) {
-            return new Vector(0.05f, 0.05f, 0.05f);
+            return new Vector(0.8f, 0.8f, 0.8f);
         }
 
         Vector normal = objects.get(idx).getNormal(tmp);
