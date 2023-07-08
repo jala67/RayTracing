@@ -19,7 +19,7 @@ public class RayTracer {
     public RayTracer() {
         this.lights = new ArrayList<>();
         objects = new ArrayList<>();
-        camera = new Camera(2540, 1440);
+        camera = new Camera(1920, 1080);
     }
 
     public void addLight(Light light) {
@@ -44,10 +44,11 @@ public class RayTracer {
         Quadric sphereQuadric4 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.2f, 0.8f, 0.7f), 0.7f, 0f, 0.3f, 0, 0f));
         Quadric sphereQuadric5 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.7f, 0f, 0.3f, 0f, 0f));
         Quadric sphereQuadric6 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.8f, 0f, 0.2f, 0f, 0f));
+        Ground ground = new Ground(new Vector(0, 4, -10), 1000, 1000, new Material(new Vector(0.9f, 0.9f, 0.9f), 0.8f, 0f, 0.2f, 0f, 0f));
 
         //transform quadrics
-        sphereQuadric = sphereQuadric.translate(new Vector(5, 0, -5.5f));
-        sphereQuadric2 = sphereQuadric2.translate(new Vector(4, 0, -5.5f));
+        sphereQuadric = sphereQuadric.translate(new Vector(3, 0, -5.5f));
+        sphereQuadric2 = sphereQuadric2.translate(new Vector(2, 0, -5.5f));
         sphereQuadric3 = sphereQuadric3.translate(new Vector(-2, -1, -6.2f));
         sphereQuadric4 = sphereQuadric4.translate(new Vector(-3, -1, -6));
         sphereQuadric5 = sphereQuadric5.translate(new Vector(-3, 2, -6));
@@ -62,14 +63,15 @@ public class RayTracer {
         CSG csgDifference = new CSG(sphereQuadric5, sphereQuadric6, "difference");
 
         // add objects
-        //rayTracer.addObject(csgDifference);
+        rayTracer.addObject(csgDifference);
+        rayTracer.addObject(ground);
         rayTracer.addObject(sphereQuadricShadow);
         rayTracer.addObject(quadric2);
         //rayTracer.addObject(csgIntersection);
         rayTracer.addObject(csgUnion);
-        rayTracer.addObject(sphereBackGround);
+        //rayTracer.addObject(sphereBackGround);
 
-        Light light1 = new Light(new Vector(8, 2, 5), 3f, 1f);
+        Light light1 = new Light(new Vector(4, -3, 6), 1f, 1f);
         rayTracer.addLight(light1);
 
         int[] pixels = new int[camera.imageWidth * camera.imageHeight];
@@ -96,7 +98,6 @@ public class RayTracer {
                     similarColors = isSimilar(firstRayColor, rayColor);
                 }
 
-
                 // Additional sampling if colors are not similar
                 if (!similarColors) {
 
@@ -118,14 +119,6 @@ public class RayTracer {
                 int g = (int) (averageColor.getY() * 255);
                 int b = (int) (averageColor.getZ() * 255);
 
-
-                /*Ray ray = camera.getRay(x, y);
-                Vector color = rayTracer.getColor(ray, 4).multiply(255);
-
-                int r = (int) color.getX();
-                int g = (int) color.getY();
-                int b = (int) color.getZ();*/
-
                 pixels[y * camera.imageWidth + x] = (255 << 24) | (r << 16) | (g << 8) | b;
             }
         }
@@ -138,7 +131,6 @@ public class RayTracer {
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
-
     }
 
     public static boolean isSimilar(Vector vector1, Vector vector2) {
@@ -177,7 +169,7 @@ public class RayTracer {
     }
 
     public Vector getColor(Ray ray, int maxDepth) {
-        int numShadowRays = 5;
+        int numShadowRays = 10;
         if (maxDepth == 0) {
             return new Vector(0, 0, 0);
         }
@@ -194,7 +186,7 @@ public class RayTracer {
             }
         }
         if (tmp == null) {
-            return new Vector(0.8f, 0.8f, 0.8f);
+            return new Vector(0.3f, 0.3f, 0.35f);
         }
 
         Vector normal = objects.get(idx).getNormal(tmp);
@@ -228,14 +220,16 @@ public class RayTracer {
         Vector reflectionColor = new Vector(0, 0, 0);
         Vector refractionColor = new Vector(0, 0, 0);
 
-        if (tmp.quadric.material.getShinyness() > 0) {
+        Material material = tmp.object.getMaterial(tmp);
+
+        if (material.getShinyness() > 0) {
             Vector reflectedDirection = ray.getDirection().subtract(normal.multiply(2 * ray.getDirection().dotProduct(normal)));
             Vector reflectionRayOrigin = tmp.intersectionPoint.add(reflectedDirection.multiply(0.001f)); // add small value to avoid hitting the same object
             Ray reflectedRay = new Ray(reflectionRayOrigin, reflectedDirection);
             reflectionColor = getColor( reflectedRay, maxDepth - 1);
         }
-        if (tmp.quadric.material.getTransparency() > 0) {
-            Vector refractedDirection = calculateRefractionDirection(ray.getDirection(),normal,tmp.quadric.material.getTransmission());
+        if (material.getTransparency() > 0) {
+            Vector refractedDirection = calculateRefractionDirection(ray.getDirection(), normal, material.getTransmission());
             Vector refractedRayOrigin = tmp.intersectionPoint.add(refractedDirection.multiply(0.001f));
             Ray refractionRay = new Ray(refractedRayOrigin,refractedDirection);
             reflectionColor = getColor(refractionRay, maxDepth - 1);
@@ -249,28 +243,28 @@ public class RayTracer {
         float NdotL = normal.dotProduct(lightDirection);
         float NdotV = normal.dotProduct(viewDirection);
         float NdotH = normal.dotProduct(halfway);
-        float roughnessSquared = tmp.quadric.material.getRoughness() * tmp.quadric.material.getRoughness();
+        float roughnessSquared = material.getRoughness() * material.getRoughness();
 
         // Cook-Torrance terms
         float D = calculateMicrofacetDistribution(NdotH, roughnessSquared);
-        float G = calculateGeometricTerm(NdotV, NdotL, tmp.quadric.material.roughness);
+        float G = calculateGeometricTerm(NdotV, NdotL, material.roughness);
         float F = calculateFresnelTerm(F0, NdotV);
         // System.out.println("Fresnel: " + F + "\tNormal: " + D + "\tGeometry: " + G);
 
         float ks = D * F * G;
-        float kd = (1 - ks) * (1 - tmp.quadric.material.metalness);
+        float kd = (1 - ks) * (1 - material.metalness);
 
         // gamma-correction
-        float red = (float) Math.pow(tmp.quadric.material.getColor().getX(), 2.2f);
-        float green = (float) Math.pow(tmp.quadric.material.getColor().getY(), 2.2f);
-        float blue = (float) Math.pow(tmp.quadric.material.getColor().getZ(), 2.2f);
-        tmp.quadric.material.color.setX(red);
-        tmp.quadric.material.color.setY(green);
-        tmp.quadric.material.color.setZ(blue);
+        float red = (float) Math.pow(material.getColor().getX(), 2.2f);
+        float green = (float) Math.pow(material.getColor().getY(), 2.2f);
+        float blue = (float) Math.pow(material.getColor().getZ(), 2.2f);
+        material.color.setX(red);
+        material.color.setY(green);
+        material.color.setZ(blue);
 
         // specular color (Cook Torrance)
         Vector lightColor = new Vector(1f, 1f, 1f);
-        Vector multiplicateVec = tmp.quadric.material.getColor().multiply(kd).add(new Vector(ks, ks, ks));
+        Vector multiplicateVec = material.getColor().multiply(kd).add(new Vector(ks, ks, ks));
         Vector specularColor = lightColor.multiply(NdotL * lights.get(0).getIntensity());
 
         specularColor.setX(specularColor.getX() * multiplicateVec.getX());
@@ -278,18 +272,18 @@ public class RayTracer {
         specularColor.setZ(specularColor.getZ() * multiplicateVec.getZ());
 
         // gamma-correction
-        red = (float) Math.pow(tmp.quadric.material.getColor().getX(), (1 / 2.2f));
-        green = (float) Math.pow(tmp.quadric.material.getColor().getY(), (1 / 2.2f));
-        blue = (float) Math.pow(tmp.quadric.material.getColor().getZ(), (1 / 2.2f));
-        tmp.quadric.material.color.setX(red);
-        tmp.quadric.material.color.setY(green);
-        tmp.quadric.material.color.setZ(blue);
+        red = (float) Math.pow(material.getColor().getX(), (1 / 2.2f));
+        green = (float) Math.pow(material.getColor().getY(), (1 / 2.2f));
+        blue = (float) Math.pow(material.getColor().getZ(), (1 / 2.2f));
+        material.color.setX(red);
+        material.color.setY(green);
+        material.color.setZ(blue);
 
         specularColor.clamp(0, 1);
         // final color
         Vector finalColor = specularColor.multiply(shadowFactor);
-        finalColor = finalColor.multiply(1-tmp.quadric.material.getShinyness());
-        finalColor = finalColor.multiply(1-tmp.quadric.material.getTransparency());
-        return finalColor.add(reflectionColor.multiply(tmp.quadric.material.getShinyness())).add(refractionColor.multiply(tmp.quadric.material.getTransparency()));  // add(refractedColor.multiply(material.transparency)) auskommentiert
+        finalColor = finalColor.multiply(1-material.getShinyness());
+        finalColor = finalColor.multiply(1-material.getTransparency());
+        return finalColor.add(reflectionColor.multiply(material.getShinyness())).add(refractionColor.multiply(material.getTransparency()));  // add(refractedColor.multiply(material.transparency)) auskommentiert
     }
 }

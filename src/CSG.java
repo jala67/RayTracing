@@ -1,5 +1,3 @@
-import java.util.List;
-
 public class CSG implements CSGObject {
     Quadric quadric1;
     Quadric quadric2;
@@ -15,13 +13,13 @@ public class CSG implements CSGObject {
 
         switch (operation) {
             case "union", "intersection" -> {
-                if (quadric1 == intersection.quadric){
+                if (quadric1 == intersection.object){
                    return quadric1.getNormal(intersection);
                 } else
                     return quadric2.getNormal(intersection);
             }
             case "difference" -> {
-                if (quadric1 == intersection.quadric){
+                if (quadric1 == intersection.object){
                     return quadric1.getNormal(intersection);
                 } else
                     return quadric2.getNormal(intersection).multiply(-1);
@@ -30,7 +28,7 @@ public class CSG implements CSGObject {
         return new Vector(0,0,0);
     }
 
-    public Intersection intersect(Ray ray) { // bad, quadric is never used (override)
+    public Intersection intersect(Ray ray) {
 
         switch (operation) {
             case "union" -> {
@@ -103,6 +101,6 @@ public class CSG implements CSGObject {
     }
     @Override
     public Material getMaterial(Intersection intersection) {
-        return intersection.quadric.getMaterial(intersection);
+        return intersection.object.getMaterial(intersection);
     }
 }

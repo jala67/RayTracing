@@ -68,6 +68,7 @@ public class Vector {
     public Vector multiply(float scalar) {
         return new Vector(x * scalar, y * scalar, z * scalar); // t, scales the vector
     }
+
     public Vector divide(float scalar) {
         return new Vector(x / scalar, y / scalar, z / scalar); // t, scales the vector
     }

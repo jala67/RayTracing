@@ -1,6 +1,6 @@
 public class Ray {
-    private Vector origin;
-    private Vector direction;
+    Vector origin;
+    Vector direction;
 
     public Ray(Vector origin, Vector direction) {
         this.origin = origin;
