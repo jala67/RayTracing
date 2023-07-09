@@ -35,8 +35,8 @@ public class RayTracer {
         RayTracer rayTracer = new RayTracer();
 
         // create quadrics
-        Quadric quadric2 = new Quadric(1f, -1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.4f, 0.8f, 0.3f), 0.8f, 0f, 0.2f, 0f, 0f)); //roughness+shinyness = 1
-        Quadric sphereQuadricShadow = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(1f, 0f, 1f), 0.05f, 0f, 0.95f, 1.5f, 1f));
+        Quadric cone = new Quadric(1f, -1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.4f, 0.8f, 0.3f), 0.8f, 0f, 0.2f, 0f, 0f)); //roughness+shinyness = 1
+        Quadric glassSphere = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(1f, 0f, 1f), 0.05f, 0f, 0.95f, 1.5f, 1f));
         Quadric sphereBackGround = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.9f, 0.9f, 0.9f), 1f, 0f, 0f, 0f, 0f));
         Quadric sphereQuadric = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.5f, 0f, 0.5f, 1.5f, 0.3f));
         Quadric sphereQuadric2 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0f, 0f, 1f), 0.7f, 0f, 0.3f, 1.5f, 0.7f));
@@ -45,6 +45,7 @@ public class RayTracer {
         Quadric sphereQuadric5 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.7f, 0f, 0.3f, 0f, 0f));
         Quadric sphereQuadric6 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.8f, 0f, 0.2f, 0f, 0f));
         Ground ground = new Ground(new Vector(0, 4, -10), 1000, 1000, new Material(new Vector(0.9f, 0.9f, 0.9f), 0.8f, 0f, 0.2f, 0f, 0f));
+        Torus torus = new Torus(new Vector(0, 2, -5), 1, 0.5f, new Material(new Vector(0.9f, 0.3f, 0.6f), 1f, 0f, 0f, 0f, 0f));
 
         //transform quadrics
         sphereQuadric = sphereQuadric.translate(new Vector(3, 0, -5.5f));
@@ -53,8 +54,8 @@ public class RayTracer {
         sphereQuadric4 = sphereQuadric4.translate(new Vector(-3, -1, -6));
         sphereQuadric5 = sphereQuadric5.translate(new Vector(-3, 2, -6));
         sphereQuadric6 = sphereQuadric6.translate(new Vector(-3.5f, 2, -4));
-        quadric2 = quadric2.translate(new Vector(1, 0, -8f));
-        sphereQuadricShadow = sphereQuadricShadow.translate(new Vector(-2f, 0f, -6));
+        cone = cone.translate(new Vector(1, 0, -8f));
+        glassSphere = glassSphere.translate(new Vector(-2f, 0f, -6));
         sphereBackGround = sphereBackGround.scale(new Vector(50, 50, 50)).translate(new Vector(0, 0, -70));
 
         //CSG operations
@@ -65,11 +66,11 @@ public class RayTracer {
         // add objects
         rayTracer.addObject(csgDifference);
         rayTracer.addObject(ground);
-        rayTracer.addObject(sphereQuadricShadow);
-        rayTracer.addObject(quadric2);
-        //rayTracer.addObject(csgIntersection);
+        rayTracer.addObject(glassSphere);
+        rayTracer.addObject(cone);
         rayTracer.addObject(csgUnion);
-        //rayTracer.addObject(sphereBackGround);
+        //rayTracer.addObject(torus);
+
 
         Light light1 = new Light(new Vector(4, -3, 6), 1f, 1f);
         rayTracer.addLight(light1);
@@ -78,12 +79,10 @@ public class RayTracer {
 
         for (int y = 0; y < camera.imageHeight; y++) {
             for (int x = 0; x < camera.imageWidth; x++) {
-
                 Vector color = new Vector(0, 0, 0);
                 Vector firstRayColor = new Vector(0, 0, 0);
                 int numRays = numSamples;
                 boolean similarColors = false;
-
 
                 for (int s = 0; s < numSamples; s++) {
                     float offsetX = (float) (Math.random() - 0.5f);
@@ -100,9 +99,7 @@ public class RayTracer {
 
                 // Additional sampling if colors are not similar
                 if (!similarColors) {
-
                     numRays += 2;
-
                      color = new Vector(0, 0, 0);
 
                     for (int s = 0; s < numRays; s++) {
@@ -196,7 +193,7 @@ public class RayTracer {
         float shadowFactor = 0.3f;
         for (int i = 0; i < numShadowRays; i++) {
             // Generate a random point within the light cube
-            Vector randomPointOnLight = lights.get(0).getPosition().add(Vector.randomPoint().multiply(lights.get(0).getRadius() * 0.5f));
+            Vector randomPointOnLight = lights.get(0).getPosition().add(Vector.randomPoint());
             Vector shadowRayDirection = randomPointOnLight.subtract(tmp.intersectionPoint);
             Ray shadowRay = new Ray(tmp.intersectionPoint.add(shadowRayDirection.multiply(0.001f)), shadowRayDirection);
 
