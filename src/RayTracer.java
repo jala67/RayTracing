@@ -45,7 +45,7 @@ public class RayTracer {
         Quadric sphereQuadric5 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.7f, 0f, 0.3f, 0f, 0f));
         Quadric sphereQuadric6 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.8f, 0f, 0.2f, 0f, 0f));
         Ground ground = new Ground(new Vector(0, 4, -10), 1000, 1000, new Material(new Vector(0.9f, 0.9f, 0.9f), 0.8f, 0f, 0.2f, 0f, 0f));
-        Torus torus = new Torus(new Vector(0, 2, -5), 1, 0.5f, new Material(new Vector(0.9f, 0.3f, 0.6f), 1f, 0f, 0f, 0f, 0f));
+        Torus torus = new Torus(new Vector(0,1,0), 1f, 0.4f, new Material(new Vector(0.9f, 0.3f, 0.6f), 0.8f, 0f, 0.2f, 0f, 0f));
 
         //transform quadrics
         sphereQuadric = sphereQuadric.translate(new Vector(3, 0, -5.5f));
@@ -64,12 +64,12 @@ public class RayTracer {
         CSG csgDifference = new CSG(sphereQuadric5, sphereQuadric6, "difference");
 
         // add objects
-        rayTracer.addObject(csgDifference);
+        //rayTracer.addObject(csgDifference);
         rayTracer.addObject(ground);
-        rayTracer.addObject(glassSphere);
-        rayTracer.addObject(cone);
+        //rayTracer.addObject(glassSphere);
+        //rayTracer.addObject(cone);
         rayTracer.addObject(csgUnion);
-        //rayTracer.addObject(torus);
+        rayTracer.addObject(torus);
 
 
         Light light1 = new Light(new Vector(4, -3, 6), 1f, 1f);
