@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
@@ -12,14 +16,13 @@ public class RayTracer {
     List<Light> lights;
     static List<CSGObject> objects;
     private static Camera camera;
-
     private static final int numSamples = 2; // Anzahl der Strahlen pro Pixel
+    BufferedImage skydomeImage = ImageIO.read(new File("SkyDome.png"));
 
-
-    public RayTracer() {
+    public RayTracer() throws IOException {
         this.lights = new ArrayList<>();
         objects = new ArrayList<>();
-        camera = new Camera(2540, 1440);
+        camera = new Camera(1920, 1080);
     }
 
     public void addLight(Light light) {
@@ -30,35 +33,34 @@ public class RayTracer {
         objects.add(object);
     }
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws IOException {
         RayTracer rayTracer = new RayTracer();
 
-        // create quadrics
+        // create objects
         Quadric cone = new Quadric(1f, -1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.4f, 0.8f, 0.3f), 0.8f, 0f, 0.2f, 0f, 0f)); //roughness+shinyness = 1
         Quadric glassSphere = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0f, 0f, 0.99f), 0.7f, 0f, 0.3f, 0f, 0f));
         Quadric sphereBackGround = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.9f, 0.9f, 0.9f), 1f, 0f, 0f, 0f, 0f));
         Quadric sphereQuadric = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.5f, 0f, 0.5f, 1.5f, 0.3f));
         Quadric sphereQuadric2 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0f, 0f, 1f), 0.7f, 0f, 0.3f, 1.5f, 0.7f));
-        Quadric sphereQuadric3 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.9f, 0.9f, 0f), 0.7f, 0f, 0.3f, 0f, 0f));
-        Quadric sphereQuadric4 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.7f, 0f, 0.7f), 0.7f, 0f, 0.3f, 0, 0f));
-        Quadric sphereQuadric5 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.9f, 0f, 0f), 0.7f, 0f, 0.3f, 0f, 0f));
-        Quadric sphereQuadric6 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.9f, 0f, 0f), 0.8f, 0f, 0.2f, 0f, 0f));
-        Ground ground = new Ground(new Vector(0, 4, -10), 1000, 1000, new Material(new Vector(0.9f, 0.9f, 0.9f), 0.8f, 0f, 0.2f, 0f, 0f));
+        Quadric sphereQuadric3 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.7f, 0.1f, 0.7f), 0.7f, 0f, 0.3f, 0f, 0f));
+        Quadric sphereQuadric4 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.2f, 0.8f, 0.7f), 0.7f, 0f, 0.3f, 0, 0f));
+        Quadric sphereQuadric5 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.7f, 0f, 0.3f, 0f, 0f));
+        Quadric sphereQuadric6 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.8f, 0f, 0.2f, 0f, 0f));
+        Ground ground = new Ground(new Vector(0, 4, -10), 1000, 50, new Material(new Vector(0.9f, 0.9f, 0.9f), 0.8f, 0f, 0.2f, 0f, 0f));
         Torus torus = new Torus(new Vector(2,0,-8), 4f, 0.5f, new Material(new Vector(0.9f, 0.3f, 0.6f), 0.05f, 0f, 0.95f, 1.5f, 1f));
 
-        //transform quadrics
+        // transform quadrics
         sphereQuadric = sphereQuadric.translate(new Vector(3, 0, -5.5f));
         sphereQuadric2 = sphereQuadric2.translate(new Vector(2, 0, -5.5f));
-        sphereQuadric3 = sphereQuadric3.translate(new Vector(-4, -1, -6.2f));
+        sphereQuadric3 = sphereQuadric3.translate(new Vector(-4, -1, -7f));
         sphereQuadric4 = sphereQuadric4.translate(new Vector(-5, -1, -6));
         sphereQuadric5 = sphereQuadric5.translate(new Vector(-3, 2, -6));
-        sphereQuadric6 = sphereQuadric6.translate(new Vector(-3.5f, 2, -4));
+        sphereQuadric6 = sphereQuadric6.translate(new Vector(-3.5f, 1, -4));
         cone = cone.translate(new Vector(2, 0, -8f));
         glassSphere = glassSphere.translate(new Vector(6f, 2f, -3.5f));
         sphereBackGround = sphereBackGround.scale(new Vector(50, 50, 50)).translate(new Vector(0, 0, -70));
 
-        //CSG operations
+        // CSG operations
         CSG csgUnion = new CSG(sphereQuadric3, sphereQuadric4, "union");
         CSG csgIntersection = new CSG(sphereQuadric, sphereQuadric2, "intersection");
         CSG csgDifference = new CSG(sphereQuadric5, sphereQuadric6, "difference");
@@ -66,7 +68,7 @@ public class RayTracer {
         // add objects
         rayTracer.addObject(csgDifference);
         rayTracer.addObject(ground);
-        rayTracer.addObject(glassSphere);
+        //rayTracer.addObject(glassSphere);
         rayTracer.addObject(cone);
         rayTracer.addObject(csgUnion);
         rayTracer.addObject(torus);
@@ -165,7 +167,7 @@ public class RayTracer {
     }
 
     public Vector getColor(Ray ray, int maxDepth) {
-        int numShadowRays = 16;
+        int numShadowRays = 10;
         if (maxDepth == 0) {
             return new Vector(0, 0, 0);
         }
@@ -182,7 +184,23 @@ public class RayTracer {
             }
         }
         if (tmp == null) {
-            return new Vector(0.3f, 0.3f, 0.3f);
+            // no intersection -> skydome
+            Vector direction = ray.getDirection().normalize();
+            float u = 0.5f + (float) (Math.atan2(direction.getZ(), direction.getX()) / (2 * Math.PI));
+            float v = 0.5f - (float) (Math.asin(direction.getY()) / Math.PI);
+
+            int x = (int) (u * skydomeImage.getWidth());
+            int y = (int) (v * skydomeImage.getHeight());
+
+            x = Math.max(0, Math.min(x, skydomeImage.getWidth() - 1));
+            y = Math.max(0, Math.min(y, skydomeImage.getHeight() - 1));
+
+            int rgb = skydomeImage.getRGB(x, y);
+
+            float r = ((rgb >> 16) & 0xFF) / 255.0f;
+            float g = ((rgb >> 8) & 0xFF) / 255.0f;
+            float b = (rgb & 0xFF) / 255.0f;
+            return new Vector(r, g, b);
         }
 
         Vector normal = objects.get(idx).getNormal(tmp);
