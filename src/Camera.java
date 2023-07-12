@@ -17,10 +17,10 @@ public class Camera {
 
     public Camera(int imageWidth,int imageHeight) {
 
-        this.position = new Vector(0, 0, 5);
+        this.position = new Vector(0, -2f, 6);
         this.up = new Vector(0,1,0);
         this.right = new Vector(1,0,0);
-        this.direction = new Vector(0, 0, -1);
+        this.direction = new Vector(0, 0.3f, -1);
 
         this.imageHeight =imageHeight;
         this.imageWidth =imageWidth;

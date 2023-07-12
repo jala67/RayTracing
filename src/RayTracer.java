@@ -19,7 +19,7 @@ public class RayTracer {
     public RayTracer() {
         this.lights = new ArrayList<>();
         objects = new ArrayList<>();
-        camera = new Camera(1920, 1080);
+        camera = new Camera(2540, 1440);
     }
 
     public void addLight(Light light) {
@@ -36,26 +36,26 @@ public class RayTracer {
 
         // create quadrics
         Quadric cone = new Quadric(1f, -1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.4f, 0.8f, 0.3f), 0.8f, 0f, 0.2f, 0f, 0f)); //roughness+shinyness = 1
-        Quadric glassSphere = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(1f, 0f, 1f), 0.05f, 0f, 0.95f, 1.5f, 1f));
+        Quadric glassSphere = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0f, 0f, 0.99f), 0.7f, 0f, 0.3f, 0f, 0f));
         Quadric sphereBackGround = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.9f, 0.9f, 0.9f), 1f, 0f, 0f, 0f, 0f));
         Quadric sphereQuadric = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.5f, 0f, 0.5f, 1.5f, 0.3f));
         Quadric sphereQuadric2 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0f, 0f, 1f), 0.7f, 0f, 0.3f, 1.5f, 0.7f));
-        Quadric sphereQuadric3 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.7f, 0.1f, 0.7f), 0.7f, 0f, 0.3f, 0f, 0f));
-        Quadric sphereQuadric4 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.2f, 0.8f, 0.7f), 0.7f, 0f, 0.3f, 0, 0f));
-        Quadric sphereQuadric5 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.7f, 0f, 0.3f, 0f, 0f));
-        Quadric sphereQuadric6 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.8f, 0f, 0.2f, 0f, 0f));
+        Quadric sphereQuadric3 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.9f, 0.9f, 0f), 0.7f, 0f, 0.3f, 0f, 0f));
+        Quadric sphereQuadric4 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.7f, 0f, 0.7f), 0.7f, 0f, 0.3f, 0, 0f));
+        Quadric sphereQuadric5 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.9f, 0f, 0f), 0.7f, 0f, 0.3f, 0f, 0f));
+        Quadric sphereQuadric6 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.9f, 0f, 0f), 0.8f, 0f, 0.2f, 0f, 0f));
         Ground ground = new Ground(new Vector(0, 4, -10), 1000, 1000, new Material(new Vector(0.9f, 0.9f, 0.9f), 0.8f, 0f, 0.2f, 0f, 0f));
-        Torus torus = new Torus(new Vector(0,1,0), 1f, 0.4f, new Material(new Vector(0.9f, 0.3f, 0.6f), 0.8f, 0f, 0.2f, 0f, 0f));
+        Torus torus = new Torus(new Vector(2,0,-8), 4f, 0.5f, new Material(new Vector(0.9f, 0.3f, 0.6f), 0.05f, 0f, 0.95f, 1.5f, 1f));
 
         //transform quadrics
         sphereQuadric = sphereQuadric.translate(new Vector(3, 0, -5.5f));
         sphereQuadric2 = sphereQuadric2.translate(new Vector(2, 0, -5.5f));
-        sphereQuadric3 = sphereQuadric3.translate(new Vector(-2, -1, -6.2f));
-        sphereQuadric4 = sphereQuadric4.translate(new Vector(-3, -1, -6));
+        sphereQuadric3 = sphereQuadric3.translate(new Vector(-4, -1, -6.2f));
+        sphereQuadric4 = sphereQuadric4.translate(new Vector(-5, -1, -6));
         sphereQuadric5 = sphereQuadric5.translate(new Vector(-3, 2, -6));
         sphereQuadric6 = sphereQuadric6.translate(new Vector(-3.5f, 2, -4));
-        cone = cone.translate(new Vector(1, 0, -8f));
-        glassSphere = glassSphere.translate(new Vector(-2f, 0f, -6));
+        cone = cone.translate(new Vector(2, 0, -8f));
+        glassSphere = glassSphere.translate(new Vector(6f, 2f, -3.5f));
         sphereBackGround = sphereBackGround.scale(new Vector(50, 50, 50)).translate(new Vector(0, 0, -70));
 
         //CSG operations
@@ -64,15 +64,14 @@ public class RayTracer {
         CSG csgDifference = new CSG(sphereQuadric5, sphereQuadric6, "difference");
 
         // add objects
-        //rayTracer.addObject(csgDifference);
+        rayTracer.addObject(csgDifference);
         rayTracer.addObject(ground);
-        //rayTracer.addObject(glassSphere);
-        //rayTracer.addObject(cone);
+        rayTracer.addObject(glassSphere);
+        rayTracer.addObject(cone);
         rayTracer.addObject(csgUnion);
         rayTracer.addObject(torus);
 
-
-        Light light1 = new Light(new Vector(4, -3, 6), 1f, 1f);
+        Light light1 = new Light(new Vector(2, -6, 6), 3f, 1f);
         rayTracer.addLight(light1);
 
         int[] pixels = new int[camera.imageWidth * camera.imageHeight];
@@ -99,7 +98,7 @@ public class RayTracer {
 
                 // Additional sampling if colors are not similar
                 if (!similarColors) {
-                    numRays += 2;
+                    numRays += 8;
                      color = new Vector(0, 0, 0);
 
                     for (int s = 0; s < numRays; s++) {
@@ -166,7 +165,7 @@ public class RayTracer {
     }
 
     public Vector getColor(Ray ray, int maxDepth) {
-        int numShadowRays = 10;
+        int numShadowRays = 16;
         if (maxDepth == 0) {
             return new Vector(0, 0, 0);
         }
@@ -183,7 +182,7 @@ public class RayTracer {
             }
         }
         if (tmp == null) {
-            return new Vector(0.3f, 0.3f, 0.35f);
+            return new Vector(0.3f, 0.3f, 0.3f);
         }
 
         Vector normal = objects.get(idx).getNormal(tmp);

@@ -11,7 +11,7 @@ public class Torus implements CSGObject {
         this.majorRadius = majorRadius;
         this.minorRadius = minorRadius;
         this.material = material;
-        this.maxIterations = 10;
+        this.maxIterations = 100;
         this.epsilon = 0.0001f;
     }
 
