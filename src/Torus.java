@@ -1,4 +1,4 @@
-public class Torus implements CSGObject {
+public class Torus implements Shape {
     Vector center;
     float majorRadius;
     float minorRadius;
@@ -60,26 +60,7 @@ public class Torus implements CSGObject {
         return new Vector(x, y, z).normalize();
     }
 
-    float distanceFunction(Vector position) {
-        Vector q = new Vector(position.length() - majorRadius, position.y, 0);
-        return q.length() - minorRadius;
-    }
-
-          /*
-        float x = 2 * (px - cx);
-        float y = 2 * (py - cy);
-        float z = 2 * (pz - cz);
-
-        float cx = center.getX();
-        float cy = center.getY();
-        float cz = center.getZ();
-
-        float length = (float) Math.sqrt(x * x + y * y + z * z);
-        return new Vector(x / length, y / length, z / length).multiply(-1);
-*/
-
-
-    private float calculateDistance(Vector point) {
+    float calculateDistance(Vector point) {
         float cx = center.getX();
         float cy = center.getY();
         float cz = center.getZ();
@@ -91,16 +72,5 @@ public class Torus implements CSGObject {
         float x = (float) Math.sqrt((px - cx) * (px - cx) + (pz - cz) * (pz - cz)) - majorRadius;
         float y = py - cy;
         return (float) Math.sqrt(x * x + y * y) - minorRadius;
-    }
-
-    public float sdTorus(Vector position) {
-        float centerRadius = majorRadius - minorRadius;
-        float x = position.x;
-        float y = position.y;
-        float z = position.z;
-        float xyLength = (float) Math.sqrt(x * x + y * y);
-        float qX = xyLength - centerRadius;
-        float qLength = (float) Math.sqrt(qX * qX + z * z);
-        return qLength - minorRadius;
     }
 }

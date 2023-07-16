@@ -6,8 +6,6 @@ public class Material {
     float transmission;
     float transparency;
 
-
-
     public Material(Vector color, float roughness, float metalness, float shinyness, float transmission, float transparency) {
         this.color = color;
         this.roughness = roughness;

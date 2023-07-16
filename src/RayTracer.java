@@ -14,14 +14,14 @@ import javax.swing.JLabel;
 
 public class RayTracer {
     List<Light> lights;
-    static List<CSGObject> objects;
+    static List<Shape> shapes;
     private static Camera camera;
     private static final int numSamples = 2; // Anzahl der Strahlen pro Pixel
     BufferedImage skydomeImage = ImageIO.read(new File("SkyDome.png"));
 
     public RayTracer() throws IOException {
         this.lights = new ArrayList<>();
-        objects = new ArrayList<>();
+        shapes = new ArrayList<>();
         camera = new Camera(1920, 1080);
     }
 
@@ -29,8 +29,8 @@ public class RayTracer {
         lights.add(light);
     }
 
-    public void addObject(CSGObject object) {
-        objects.add(object);
+    public void addShape(Shape shape) {
+        shapes.add(shape);
     }
 
     public static void main(String[] args) throws IOException {
@@ -66,12 +66,12 @@ public class RayTracer {
         CSG csgDifference = new CSG(sphereQuadric5, sphereQuadric6, "difference");
 
         // add objects
-        rayTracer.addObject(csgDifference);
-        rayTracer.addObject(ground);
+        rayTracer.addShape(csgDifference);
+        rayTracer.addShape(ground);
         //rayTracer.addObject(glassSphere);
-        rayTracer.addObject(cone);
-        rayTracer.addObject(csgUnion);
-        rayTracer.addObject(torus);
+        rayTracer.addShape(cone);
+        rayTracer.addShape(csgUnion);
+        rayTracer.addShape(torus);
 
         Light light1 = new Light(new Vector(2, -6, 6), 3f, 1f);
         rayTracer.addLight(light1);
@@ -175,8 +175,8 @@ public class RayTracer {
         Intersection closestIntersection = new Intersection(null, Float.POSITIVE_INFINITY, null);
         Intersection tmp = null;
         int idx = -1;
-        for (int i = 0; i < objects.size(); i++) {
-            Intersection intersection = objects.get(i).intersect(ray);
+        for (int i = 0; i < shapes.size(); i++) {
+            Intersection intersection = shapes.get(i).intersect(ray);
             if (intersection.intersection > 0 && intersection.intersection < closestIntersection.intersection) {
                 idx = i;
                 closestIntersection = intersection;
@@ -203,7 +203,7 @@ public class RayTracer {
             return new Vector(r, g, b);
         }
 
-        Vector normal = objects.get(idx).getNormal(tmp);
+        Vector normal = shapes.get(idx).getNormal(tmp);
         Vector intersectionToLight = lights.get(0).getPosition().subtract(tmp.intersectionPoint);
 
         // Calculate shadow factor with path tracing
@@ -216,9 +216,9 @@ public class RayTracer {
 
             // Check for intersection with objects to determine if the point is in shadow
             boolean isInShadow = false;
-            for (CSGObject object : objects) {
-                if (object.getMaterial(tmp).transparency < 0.5f) {
-                    Intersection shadowIntersection = object.intersect(shadowRay);
+            for (Shape shape : shapes) {
+                if (shape.getMaterial(tmp).transparency < 0.5f) {
+                    Intersection shadowIntersection = shape.intersect(shadowRay);
                     if (shadowIntersection.intersection > 0 && shadowIntersection.intersection < shadowRayDirection.length()) {
                         isInShadow = true;
                         break;

@@ -1,16 +1,7 @@
-import java.util.List;
-
-public class Quadric implements CSGObject {
+public class Quadric implements Shape {
     float a, b, c, d, e, f, g, h, i, j;
     Material material;
 
-    public static void main(String[] args) {
-        //Quadric q = new Quadric(1,2,3,4,5,6,7,8,9,10, new Vector(0f, 2f, -8f), new Vector(0, 255, 0));
-        /*System.out.println(q.ursprung.werte[0] + " " + q.ursprung.werte[4] + " " + q.ursprung.werte[8] + " " + q.ursprung.werte[12] );
-        System.out.println(q.ursprung.werte[1] + " " + q.ursprung.werte[5] + " " + q.ursprung.werte[9] + " " + q.ursprung.werte[13] );
-        System.out.println(q.ursprung.werte[2] + " " + q.ursprung.werte[6] + " " + q.ursprung.werte[10] + " " + q.ursprung.werte[14]);
-        System.out.println(q.ursprung.werte[3] + " " + q.ursprung.werte[7] + " " + q.ursprung.werte[11] + " " + q.ursprung.werte[15]);*/
-    }
     public Quadric(float a, float b, float c, float d, float e, float f, float g, float h, float i, float j, Material material) {
         this.a = a;
         this.b = b;
@@ -82,7 +73,6 @@ public class Quadric implements CSGObject {
     }
 
     public Vector getNormal(Intersection intersection) {
-
         Vector point = intersection.intersectionPoint;
         float x = point.getX();
         float y = point.getY();

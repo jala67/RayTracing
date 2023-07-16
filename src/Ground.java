@@ -1,8 +1,8 @@
-public class Ground implements CSGObject {
-    private final Vector position;
-    private final float width;
-    private final float height;
-    private final Material material;
+public class Ground implements Shape {
+    Vector position;
+    float width;
+    float height;
+    Material material;
 
     public Ground(Vector position, float width, float height, Material material) {
         this.position = position;

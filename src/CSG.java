@@ -1,4 +1,4 @@
-public class CSG implements CSGObject {
+public class CSG implements Shape {
     Quadric quadric1;
     Quadric quadric2;
     String operation;
@@ -10,7 +10,6 @@ public class CSG implements CSGObject {
     }
 
     public Vector getNormal (Intersection intersection){
-
         switch (operation) {
             case "union", "intersection" -> {
                 if (quadric1 == intersection.object){
@@ -29,7 +28,6 @@ public class CSG implements CSGObject {
     }
 
     public Intersection intersect(Ray ray) {
-
         switch (operation) {
             case "union" -> {
                 Intersection intersection1 = quadric1.intersect(ray);
@@ -99,6 +97,7 @@ public class CSG implements CSGObject {
         }
         return new Intersection(null, -1.0f, null);
     }
+
     @Override
     public Material getMaterial(Intersection intersection) {
         return intersection.object.getMaterial(intersection);
