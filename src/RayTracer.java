@@ -16,7 +16,7 @@ public class RayTracer {
     List<Light> lights;
     static List<Shape> shapes;
     private static Camera camera;
-    private static final int numSamples = 2; // Anzahl der Strahlen pro Pixel
+    private static final int numSamples = 2; // number of rays per pixel
     BufferedImage skydomeImage = ImageIO.read(new File("SkyDome.png"));
 
     public RayTracer() throws IOException {
@@ -93,7 +93,7 @@ public class RayTracer {
                     similarColors = isSimilar(firstRayColor, rayColor);
                 }
 
-                // Additional sampling if colors are not similar
+                // additional sampling if colors are not similar
                 if (!similarColors) {
                     numRays += 8;
                      color = new Vector(0, 0, 0);
@@ -106,7 +106,6 @@ public class RayTracer {
                     }
                 }
 
-                // Calculate average color and convert to pixel color
                 Vector averageColor = color.divide(numRays);
                 int r = (int) (averageColor.getX() * 255);
                 int g = (int) (averageColor.getY() * 255);
@@ -200,16 +199,14 @@ public class RayTracer {
 
         Vector normal = shapes.get(idx).getNormal(tmp);
         Vector intersectionToLight = lights.get(0).getPosition().subtract(tmp.intersectionPoint);
-
-        // Calculate shadow factor with path tracing
+        // calculate shadow factor with path tracing
         float shadowFactor = 0.3f;
         for (int i = 0; i < numShadowRays; i++) {
-            // Generate a random point within the light cube
+            // random point on the light sphere
             Vector randomPointOnLight = lights.get(0).getPosition().add(Vector.randomPoint());
             Vector shadowRayDirection = randomPointOnLight.subtract(tmp.intersectionPoint);
             Ray shadowRay = new Ray(tmp.intersectionPoint.add(shadowRayDirection.multiply(0.001f)), shadowRayDirection);
-
-            // Check for intersection with objects to determine if the point is in shadow
+            // check for intersection with objects to determine if the point is in shadow
             boolean isInShadow = false;
             for (Shape shape : shapes) {
                 if (shape.getMaterial(tmp).transparency < 0.5f) {
@@ -224,7 +221,6 @@ public class RayTracer {
                 shadowFactor += 1.0f / numShadowRays;
             }
         }
-
         // Calculate reflection color
         Vector reflectionColor = new Vector(0, 0, 0);
         Vector refractionColor = new Vector(0, 0, 0);
@@ -258,7 +254,6 @@ public class RayTracer {
         float D = calculateMicrofacetDistribution(NdotH, roughnessSquared);
         float G = calculateGeometricTerm(NdotV, NdotL, material.roughness);
         float F = calculateFresnelTerm(F0, NdotV);
-        // System.out.println("Fresnel: " + F + "\tNormal: " + D + "\tGeometry: " + G);
 
         float ks = D * F * G;
         float kd = (1 - ks) * (1 - material.metalness);
