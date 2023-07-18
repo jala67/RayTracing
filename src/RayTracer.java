@@ -38,8 +38,6 @@ public class RayTracer {
 
         // create objects
         Quadric cone = new Quadric(1f, -1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.4f, 0.8f, 0.3f), 0.8f, 0f, 0.2f, 0f, 0f)); //roughness+shinyness = 1
-        Quadric glassSphere = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0f, 0f, 0.99f), 0.7f, 0f, 0.3f, 0f, 0f));
-        Quadric sphereBackGround = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.9f, 0.9f, 0.9f), 1f, 0f, 0f, 0f, 0f));
         Quadric sphereQuadric = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.5f, 0f, 0.5f, 1.5f, 0.3f));
         Quadric sphereQuadric2 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0f, 0f, 1f), 0.7f, 0f, 0.3f, 1.5f, 0.7f));
         Quadric sphereQuadric3 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.7f, 0.1f, 0.7f), 0.7f, 0f, 0.3f, 0f, 0f));
@@ -57,8 +55,6 @@ public class RayTracer {
         sphereQuadric5 = sphereQuadric5.translate(new Vector(-3, 2, -6));
         sphereQuadric6 = sphereQuadric6.translate(new Vector(-3.5f, 1, -4));
         cone = cone.translate(new Vector(2, 0, -8f));
-        glassSphere = glassSphere.translate(new Vector(6f, 2f, -3.5f));
-        sphereBackGround = sphereBackGround.scale(new Vector(50, 50, 50)).translate(new Vector(0, 0, -70));
 
         // CSG operations
         CSG csgUnion = new CSG(sphereQuadric3, sphereQuadric4, "union");
@@ -68,12 +64,11 @@ public class RayTracer {
         // add objects
         rayTracer.addShape(csgDifference);
         rayTracer.addShape(ground);
-        //rayTracer.addObject(glassSphere);
         rayTracer.addShape(cone);
         rayTracer.addShape(csgUnion);
         rayTracer.addShape(torus);
 
-        Light light1 = new Light(new Vector(2, -6, 6), 3f, 1f);
+        Light light1 = new Light(new Vector(2, -6, 6), 1f, 1f);
         rayTracer.addLight(light1);
 
         int[] pixels = new int[camera.imageWidth * camera.imageHeight];
@@ -167,7 +162,7 @@ public class RayTracer {
     }
 
     public Vector getColor(Ray ray, int maxDepth) {
-        int numShadowRays = 10;
+        int numShadowRays = 5;
         if (maxDepth == 0) {
             return new Vector(0, 0, 0);
         }

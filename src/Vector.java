@@ -1,5 +1,3 @@
-import java.util.Random;
-
 public class Vector {
      float x;
      float y;
@@ -77,19 +75,10 @@ public class Vector {
         return x * other.x + y * other.y + z * other.z;
     }
 
-    public float squaredLength() {
-        return x * x + y * y + z * z;
-    }
-
     public static Vector randomPoint() {
-        Random random = new Random();
-        Vector point;
-        do {
-            float x = random.nextFloat() * 1.5f - 1;
-            float y = random.nextFloat() * 1.5f - 1;
-            float z = random.nextFloat() * 1.5f - 1;
-            point = new Vector(x, y, z);
-        } while (point.squaredLength() >= 1);
-        return point;
+        float x = (float) (Math.random() * 2 - 1);
+        float y = (float) (Math.random() * 2 - 1);
+        float z = (float) (Math.random() * 2 - 1);
+        return new Vector(x, y, z).normalize();
     }
 }
