@@ -147,13 +147,13 @@ public class Quadric implements Shape {
                 if (t1 < t2) {
                     Vector intersectionPoint = ray.getOrigin().add(ray.getDirection().normalize().multiply(t1));
                     Intersection intersection = new Intersection(intersectionPoint, t1, this);
-                    intersection.entryIntersection = t1;
+                    intersection.intersection = t1;
                     intersection.exitIntersection = t2;
                     return intersection;
                 } else {
                     Vector intersectionPoint = ray.getOrigin().add(ray.getDirection().normalize().multiply(t2));
                     Intersection intersection = new Intersection(intersectionPoint, t2, this);
-                    intersection.entryIntersection = t2;
+                    intersection.intersection = t2;
                     intersection.exitIntersection = t1;
                     return intersection;
                 }

@@ -67,9 +67,9 @@ public class CSG implements Shape {
                 }
             }
             case "difference" -> {
-                float Ain = quadric1.intersect(ray).entryIntersection;
+                float Ain = quadric1.intersect(ray).intersection;
                 float Aout = quadric1.intersect(ray).exitIntersection;
-                float Bin = quadric2.intersect(ray).entryIntersection;
+                float Bin = quadric2.intersect(ray).intersection;
                 float Bout = quadric2.intersect(ray).exitIntersection;
 
                 if (Ain > 0 && Bin > 0) {

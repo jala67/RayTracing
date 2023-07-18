@@ -1,8 +1,7 @@
 public class Intersection {
-    float entryIntersection;
+    float intersection; // distance from rayOrigin to entry intersection
     float exitIntersection;
     Vector intersectionPoint;
-    float intersection; // distance from rayOrigin to intersection
     Shape object;
 
     public Intersection(Vector intersectionPoint, float intersection, Shape object) {

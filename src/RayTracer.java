@@ -293,6 +293,6 @@ public class RayTracer {
         Vector finalColor = specularColor.multiply(shadowFactor);
         finalColor = finalColor.multiply(1-material.getShinyness());
         finalColor = finalColor.multiply(1-material.getTransparency());
-        return finalColor.add(reflectionColor.multiply(material.getShinyness())).add(refractionColor.multiply(material.getTransparency()));  // add(refractedColor.multiply(material.transparency)) auskommentiert
+        return finalColor.add(reflectionColor.multiply(material.getShinyness())).add(refractionColor.multiply(material.getTransparency()));
     }
 }
