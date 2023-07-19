@@ -43,11 +43,6 @@ public class Torus implements Shape {
         return calculateNormal(intersection.intersectionPoint);
     }
 
-    @Override
-    public Material getMaterial(Intersection intersection) {
-        return material;
-    }
-
     private Vector calculateNormal(Vector point) {
         float px = point.getX();
         float py = point.getY();
@@ -72,5 +67,10 @@ public class Torus implements Shape {
         float x = (float) Math.sqrt((px - cx) * (px - cx) + (pz - cz) * (pz - cz)) - majorRadius;
         float y = py - cy;
         return (float) Math.sqrt(x * x + y * y) - minorRadius;
+    }
+
+    @Override
+    public Material getMaterial(Intersection intersection) {
+        return material;
     }
 }
