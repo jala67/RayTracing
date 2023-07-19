@@ -21,4 +21,11 @@ public class Light {
     public float getIntensity() {
         return intensity;
     }
+
+    public Vector randomPoint() {
+        float x = (float) (Math.random() * radius);
+        float y = (float) (Math.random() * radius);
+        float z = (float) (Math.random() * radius);
+        return new Vector(x, y, z);
+    }
 }

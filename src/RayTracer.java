@@ -17,7 +17,7 @@ public class RayTracer {
     static List<Shape> shapes;
     private static Camera camera;
     private static final int numSamples = 2; // number of rays per pixel
-    BufferedImage skydomeImage = ImageIO.read(new File("SkyDome.png"));
+    BufferedImage skydomeImage = ImageIO.read(new File("SkyDome2.jpg"));
 
     public RayTracer() throws IOException {
         this.lights = new ArrayList<>();
@@ -203,7 +203,7 @@ public class RayTracer {
         float shadowFactor = 0.3f;
         for (int i = 0; i < numShadowRays; i++) {
             // random point on the light sphere
-            Vector randomPointOnLight = lights.get(0).getPosition().add(Vector.randomPoint());
+            Vector randomPointOnLight = lights.get(0).getPosition().add(lights.get(0).randomPoint());
             Vector shadowRayDirection = randomPointOnLight.subtract(tmp.intersectionPoint);
             Ray shadowRay = new Ray(tmp.intersectionPoint.add(shadowRayDirection.multiply(0.001f)), shadowRayDirection);
             // check for intersection with objects to determine if the point is in shadow

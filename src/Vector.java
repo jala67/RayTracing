@@ -74,11 +74,4 @@ public class Vector {
     public float dotProduct(Vector other) {
         return x * other.x + y * other.y + z * other.z;
     }
-
-    public static Vector randomPoint() {
-        float x = (float) (Math.random() * 2 - 1);
-        float y = (float) (Math.random() * 2 - 1);
-        float z = (float) (Math.random() * 2 - 1);
-        return new Vector(x, y, z).normalize();
-    }
 }
