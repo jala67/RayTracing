@@ -44,7 +44,7 @@ public class RayTracer {
         Quadric sphereQuadric4 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.2f, 0.8f, 0.7f), 0.7f, 0f, 0.3f, 0, 0f));
         Quadric sphereQuadric5 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.7f, 0f, 0.3f, 0f, 0f));
         Quadric sphereQuadric6 = new Quadric(1f, 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, -1f, new Material(new Vector(0.8f, 0.1f, 0.5f), 0.8f, 0f, 0.2f, 0f, 0f));
-        Ground ground = new Ground(new Vector(0, 4, -10), 1000, 50, new Material(new Vector(0.9f, 0.9f, 0.9f), 0.8f, 0f, 0.2f, 0f, 0f));
+        Ground ground = new Ground(new Vector(0, 4, -10), 1000, 100, new Material(new Vector(0.9f, 0.9f, 0.9f), 0.8f, 0f, 0.2f, 0f, 0f));
         Torus torus = new Torus(new Vector(2,0,-8), 4f, 0.5f, new Material(new Vector(0.9f, 0.3f, 0.6f), 0.05f, 0f, 0.95f, 1.5f, 1f));
 
         // transform quadrics
