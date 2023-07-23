@@ -23,9 +23,10 @@ public class Light {
     }
 
     public Vector randomPoint() {
-        float x = (float) (Math.random() * radius);
-        float y = (float) (Math.random() * radius);
-        float z = (float) (Math.random() * radius);
-        return new Vector(x, y, z);
+        float x = (float) (Math.random() * 1.5f - 1);
+        float y = (float) (Math.random() * 1.5f - 1);
+        float z = (float) (Math.random() * 1.5f - 1);
+        Vector randomPoint = new Vector(x, y, z).normalize();
+        return randomPoint.multiply(radius);
     }
 }
