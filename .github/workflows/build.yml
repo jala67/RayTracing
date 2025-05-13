@@ -23,5 +23,5 @@ jobs:
     - name: Compile Java files
       run: javac -d out $(find . -name "*.java")
 
-    - name: Run Java program
-      run: java -cp out RayTracer
+    - name: Run RayTracer (Headless Mode)
+      run: java -Djava.awt.headless=true -cp out RayTracer
