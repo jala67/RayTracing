@@ -24,4 +24,4 @@ jobs:
       run: javac -d out $(find . -name "*.java")
 
     - name: Run Java program
-      run: java -cp out Main
+      run: java -cp out RayTracer
